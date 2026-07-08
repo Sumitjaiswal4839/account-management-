@@ -62,3 +62,4 @@ Open your browser and navigate to:
 
 `/dashboard` and all account/API routes now require a logged-in session. From the landing page, use **Developer Bypass** to get a valid local session without needing real Google OAuth credentials configured.
 "# account-management-" 
+"# account-management-" 

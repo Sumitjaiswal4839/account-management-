@@ -1,0 +1,397 @@
+/* AccSpace Premium Landing Page Styling */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+html {
+    overflow-y: auto !important;
+    height: auto !important;
+}
+
+.landing-body {
+    background-color: #0b0f19;
+    color: #f1f5f9;
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+/* Ambient Animated Background Gradients */
+.landing-glow-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.g-blob-1 {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(30, 64, 175, 0.05) 50%, rgba(0,0,0,0) 80%);
+    filter: blur(80px);
+    animation: float-blob-1 12s infinite alternate;
+}
+
+.g-blob-2 {
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(6, 95, 70, 0.03) 50%, rgba(0,0,0,0) 80%);
+    filter: blur(80px);
+    animation: float-blob-2 15s infinite alternate;
+}
+
+@keyframes float-blob-1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-50px, 50px) scale(1.1); }
+}
+
+@keyframes float-blob-2 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(50px, -50px) scale(1.1); }
+}
+
+/* Header Navbar */
+.landing-navbar {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.nav-brand svg {
+    width: 32px;
+    height: 32px;
+}
+
+.nav-link {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #3b82f6;
+}
+
+/* Main Container Layout */
+.landing-container {
+    max-width: 1100px;
+    width: 100%;
+    padding: 60px 24px;
+    z-index: 5;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Hero Section */
+.landing-hero {
+    margin-bottom: 60px;
+    max-width: 800px;
+}
+
+.hero-badge {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.landing-hero h1 {
+    font-size: clamp(1.8rem, 6vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+    color: #ffffff;
+    background: linear-gradient(to right, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.landing-hero p {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: #94a3b8;
+    max-width: 640px;
+    margin: 0 auto 40px auto;
+    line-height: 1.6;
+    font-weight: 300;
+}
+
+.landing-cta-wrapper {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.google-signin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    color: #1f2937;
+    padding: 15px 32px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.google-signin-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+    background: #f9fafb;
+}
+
+.landing-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 16px 36px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.landing-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(59, 130, 246, 0.5);
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+}
+
+.landing-cta-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.landing-cta-btn:hover svg {
+    transform: translateX(4px);
+}
+
+/* Features Cards Layout */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+    width: 100%;
+}
+
+.feature-item {
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: left;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-6px);
+    border-color: rgba(59, 130, 246, 0.25);
+    background: rgba(30, 41, 59, 0.45);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.feature-item:hover::before {
+    opacity: 1;
+}
+
+.feature-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    font-size: 1.5rem;
+}
+
+.feature-item h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #ffffff;
+}
+
+.feature-item p {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Dynamic Stats Panel */
+.landing-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+    margin-bottom: 60px;
+    background: rgba(30, 41, 59, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 32px;
+    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+}
+
+.stat-box {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #60a5fa;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.stat-desc {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Compliance badges */
+.compliance-badges {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.badge-compliance {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Footer */
+.landing-footer {
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+    padding: 32px;
+    color: #64748b;
+    font-size: 0.85rem;
+    z-index: 5;
+}
+
+/* Responsive Rules for Small Devices (Media Queries) */
+@media (max-width: 960px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .landing-navbar {
+        padding: 16px 20px;
+    }
+    .nav-brand {
+        font-size: 1.3rem;
+    }
+    .nav-link {
+        font-size: 0.85rem;
+    }
+    .landing-container {
+        padding: 24px 16px;
+    }
+    .landing-cta-wrapper {
+        width: 100%;
+    }
+    .landing-cta-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .landing-stats {
+        flex-direction: column;
+        gap: 24px;
+        padding: 24px 16px;
+    }
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .feature-item {
+        padding: 24px 20px;
+    }
+}

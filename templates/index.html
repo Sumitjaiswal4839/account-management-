@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Combined Modular Stylesheet -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    <!-- HTMX AJAX Library -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="dashboard-body">
+    <!-- Security CSRF token header setup for HTMX requests -->
+    <div hx-headers='{"X-CSRF-Token": "{{.CSRFToken}}"}'>
+    
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <!-- Modern Glowing Logo -->
+                <svg width="32" height="32" style="width: 32px; height: 32px; flex-shrink: 0;" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="10" fill="url(#logoGrad)" />
+                    <path d="M9 16L14 21L23 11" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#3b82f6"/>
+                            <stop offset="1" stop-color="#1d4ed8"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h2>AccSpace</h2>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" id="nav-dashboard">
+                    <span class="menu-icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="menu-item" id="nav-accounts">
+                    <span class="menu-icon">👥</span> Accounts
+                </a>
+                <a href="#" class="menu-item" id="nav-security">
+                    <span class="menu-icon">🔒</span> Security
+                </a>
+                <a href="#" class="menu-item" id="nav-settings">
+                    <span class="menu-icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-pill">
+                    <div class="user-avatar">{{if .CurrentUser.Initials}}{{.CurrentUser.Initials}}{{else}}U{{end}}</div>
+                    <div class="user-info">
+                        <span class="user-name">{{if .CurrentUser.Name}}{{.CurrentUser.Name}}{{else}}Dashboard User{{end}}</span>
+                        <span class="user-role">{{if .CurrentUser.Role}}{{.CurrentUser.Role}}{{else}}Viewer{{end}}</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-search">
+                    <input type="text" id="global-search" placeholder="Search accounts, roles, or logs...">
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="btn-notifications">
+                        <span class="btn-icon">🔔</span>
+                    </button>
+                    <button class="btn btn-primary" id="btn-add-account-trigger">
+                        <span class="btn-icon">＋</span> Add Account
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-viewport">
+                {{if .Message}}
+                <div class="alert {{if .Success}}alert-success{{else}}alert-danger{{end}}" style="padding: 16px; border-radius: 8px; background-color: var(--success-bg); color: var(--success-color); border: 1px solid var(--success-color); margin-bottom: 20px;">
+                    {{.Message}}
+                </div>
+                {{end}}
+
+                <!-- PANEL 1: DASHBOARD (Active by default) -->
+                <div id="panel-dashboard" class="view-panel">
+                    <!-- Welcome Banner -->
+                    <section class="welcome-banner" style="margin-bottom: 24px;">
+                        <div class="banner-content">
+                            <h1>Welcome back, {{if .CurrentUser.Name}}{{.CurrentUser.Name}}{{else}}AccSpace User{{end}}</h1>
+                            <p>{{if .CurrentUser.Email}}Signed in as {{.CurrentUser.Email}}{{else}}Your secure account management workspace is fully operational and updated.{{end}}</p>
+                        </div>
+                        <div class="banner-stats">
+                            <div class="stat-card">
+                                <span class="stat-value" id="stat-total-accounts">{{.Count}}</span>
+                                <span class="stat-label">Active Accounts</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-value" id="stat-active-sessions">1</span>
+                                <span class="stat-label">Active Session</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Account Discovery Scanner -->
+                    <section class="accounts-section" style="margin-bottom: 24px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(31, 38, 53, 0.4) 100%);">
+                        <div class="section-header">
+                            <h3>🔍 Account Discovery Scanner</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Scans email headers for sign-up/welcome emails to find connected accounts</span>
+                        </div>
+                        <form hx-post="/api/discover" hx-target="#discovered-table-body" hx-swap="beforeend" hx-on::before-request="var p = document.querySelector('.no-discovered-placeholder'); if(p) p.remove();" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 150px; gap: 16px; align-items: flex-end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>IMAP Server Host</label>
+                                <input type="text" name="imap_server" value="{{.DefaultImapHost}}" required placeholder="imap.gmail.com:993">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Email Address</label>
+                                <input type="email" name="email" required placeholder="name@gmail.com">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>App Password</label>
+                                <input type="password" name="password" required placeholder="Google App Password">
+                                <span style="font-size: 0.75rem; color: var(--text-secondary);">Gmail accounts with 2-Step Verification need an App Password (myaccount.google.com/apppasswords) - your normal password won't work here.</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="height: 45px; justify-content: center;">Start Scan</button>
+                        </form>
+                    </section>
+
+                    <!-- Discovered Traces List -->
+                    <section class="accounts-section">
+                        <div class="section-header">
+                            <h3>🔗 Discovered Login Traces</h3>
+                            <div class="filter-controls">
+                                <select id="timeline-filter" class="form-select" hx-get="/api/filter-timeline" hx-target="#discovered-table-body" name="timeline">
+                                    <option value="all">All Time</option>
+                                    <option value="last2years">Last 2 Years</option>
+                                    <option value="2026">Year 2026</option>
+                                    <option value="2025">Year 2025</option>
+                                    <option value="2024">Year 2024</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="accounts-list-container">
+                            <table class="accounts-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Login Email</th>
+                                        <th>Risk Level</th>
+                                        <th>Status</th>
+                                        <th>Login Date</th>
+                                        <th>Discovered Via</th>
+                                        <th class="actions-col" style="text-align: center;">GDPR/CCPA Cleanup Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="discovered-table-body">
+                                    {{range .Discovered}}
+                                    <tr class="discovered-row">
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="user-initials">{{.Initials}}</div>
+                                                <strong>{{.ServiceName}}</strong>
+                                            </div>
+                                        </td>
+                                        <td>{{.LoginEmail}}</td>
+                                        <td><span class="badge badge-{{.RiskLevel}}">{{.RiskLevel}} Risk</span></td>
+                                        <td>
+                                            <div class="status-indicator">
+                                                <span class="status-dot {{if eq .Status "Active"}}active{{else}}inactive{{end}}"></span>
+                                                <span>{{.Status}}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{.LoginDate}}</td>
+                                        <td>{{.LastActive}}</td>
+                                        <td class="actions-col">
+                                            <button class="btn btn-secondary btn-sm" onclick="window.open('{{.DeleteUrl}}', '_blank')">🔗 Direct Link</button>
+                                            <button class="btn btn-danger btn-sm" hx-post="/api/cleanup?id={{.ID}}" hx-target="closest tr" hx-swap="outerHTML">🗑️ CCPA Delete</button>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                    {{if not .Discovered}}
+                                    <tr class="no-discovered-placeholder">
+                                        <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 32px;">
+                                            No scanning traces discovered yet. Run the scanner above to parse welcome emails.
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- PANEL 2: ACCOUNTS PANEL (Hidden by default) -->
+                <div id="panel-accounts" class="view-panel" style="display: none;">
+                    <section class="accounts-section">
+                        <div class="section-header">
+                            <h3>Managed Accounts</h3>
+                            <div class="filter-controls">
+                                <select id="role-filter" class="form-select">
+                                    <option value="all">All Roles</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Editor">Editor</option>
+                                    <option value="Viewer">Viewer</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="accounts-list-container">
+                            <table class="accounts-table" id="accounts-table-element">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Last Active</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="accounts-table-body">
+                                    {{range .Accounts}}
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="user-initials">{{.Initials}}</div>
+                                                <span>{{.Name}}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{.Email}}</td>
+                                        <td>{{if .Phone}}{{.Phone}}{{else}}—{{end}}</td>
+                                        <td><span class="badge badge-{{.RoleClass}}">{{.Role}}</span></td>
+                                        <td>
+                                            <div class="status-indicator">
+                                                <span class="status-dot active"></span>
+                                                <span>Active</span>
+                                            </div>
+                                        </td>
+                                        <td>Just now</td>
+                                        <td class="actions-col">
+                                            <button class="btn-icon-only btn-delete-account" hx-delete="/delete-account?id={{.ID}}" hx-target="closest tr" hx-swap="outerHTML">🗑️</button>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- PANEL 3: SECURITY PANEL (Hidden by default) -->
+                <div id="panel-security" class="view-panel" style="display: none;">
+                    <section class="accounts-section" style="margin-bottom: 24px;">
+                        <div class="section-header">
+                            <h3>🛡️ Privacy Compliance Status</h3>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                            <div class="stat-card" style="border-left: 4px solid var(--success-color);">
+                                <h4 style="margin-bottom: 8px; color: #fff;">GDPR Protocol</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct Deletion Links configured for verified search endpoints.</p>
+                                <span class="badge badge-low" style="margin-top: 12px; width: fit-content;">Compliant</span>
+                            </div>
+                            <div class="stat-card" style="border-left: 4px solid var(--success-color);">
+                                <h4 style="margin-bottom: 8px; color: #fff;">CCPA Framework</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">Opt-Out logging automation verified in cleanup_logs.</p>
+                                <span class="badge badge-low" style="margin-top: 12px; width: fit-content;">Active</span>
+                            </div>
+                            <div class="stat-card" style="border-left: 4px solid var(--accent-color);">
+                                <h4 style="margin-bottom: 8px; color: #fff;">Local Encryption</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">SSL Cert RSA-2048 keys validated. Connection is encrypted.</p>
+                                <span class="badge badge-admin" style="margin-top: 12px; width: fit-content;">Encrypted</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="accounts-section">
+                        <div class="section-header">
+                            <h3>📜 Security Audit Logs</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">System operations tracked locally</span>
+                        </div>
+                        <div class="accounts-list-container">
+                            <table class="accounts-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Action Logged</th>
+                                        <th>Agent Entity</th>
+                                        <th>Status Code</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Just Now</td>
+                                        <td><strong>IMAP Scan Inbox initiated</strong></td>
+                                        <td>System daemon (Gmail SSL)</td>
+                                        <td><span class="badge badge-low">Success</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5 mins ago</td>
+                                        <td><strong>JWT Token Session validated</strong></td>
+                                        <td>JWT Auth Filter</td>
+                                        <td><span class="badge badge-low">Verified</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>15 mins ago</td>
+                                        <td><strong>SSL Keys initialized</strong></td>
+                                        <td>crypto/rsa local generator</td>
+                                        <td><span class="badge badge-low">Active</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- PANEL 4: SETTINGS PANEL (Hidden by default) -->
+                <div id="panel-settings" class="view-panel" style="display: none;">
+                    <section class="accounts-section" style="margin-bottom: 24px;">
+                        <div class="section-header">
+                            <h3>⚙️ Global Credentials Configuration</h3>
+                        </div>
+                        <form hx-post="/api/settings" hx-swap="none" hx-on::after-request="if(event.detail.successful){ document.getElementById('settings-saved-msg').style.display='block'; setTimeout(()=>document.getElementById('settings-saved-msg').style.display='none', 3000); }" style="display: flex; flex-direction: column; gap: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Google OAuth Client ID</label>
+                                    <input type="text" placeholder="Set via GOOGLE_CLIENT_ID env var" value="Configured via .env (not editable here)" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Google OAuth Client Secret</label>
+                                    <input type="password" placeholder="••••••••••••••••" value="••••••••••••••••" disabled>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Default IMAP Domain Host</label>
+                                    <input type="text" name="imap_host" value="{{.DefaultImapHost}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Session Expiration Time Limit</label>
+                                    <select class="form-select" name="session_ttl" style="width: 100%;">
+                                        <option value="1h" {{if eq .SessionTTL "1h"}}selected{{end}}>1 Hour (Default)</option>
+                                        <option value="8h" {{if eq .SessionTTL "8h"}}selected{{end}}>8 Hours</option>
+                                        <option value="24h" {{if eq .SessionTTL "24h"}}selected{{end}}>24 Hours</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions" style="margin-top: 10px;">
+                                <span id="settings-saved-msg" style="display:none; color: var(--success-color); align-self: center;">✅ Settings saved</span>
+                                <button type="reset" class="btn btn-secondary">Discard Changes</button>
+                                <button type="submit" class="btn btn-primary">Save Configuration</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    </div>
+
+    <!-- Add Account Modal -->
+    <div class="modal-overlay" id="add-account-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Create New Account</h3>
+                <button class="modal-close" id="btn-modal-close">&times;</button>
+            </div>
+            <form id="add-account-form" hx-post="/add-account" hx-target="#accounts-table-body" hx-swap="beforeend" hx-on::after-request="document.getElementById('add-account-modal').classList.remove('active'); this.reset();">
+                <div class="form-group">
+                    <label for="input-username">Full Name</label>
+                    <input type="text" id="input-username" name="username" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="input-email">Email Address</label>
+                    <input type="email" id="input-email" name="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="input-phone">Phone Number (optional)</label>
+                    <input type="tel" id="input-phone" name="phone" placeholder="+91 98765 43210">
+                </div>
+                <div class="form-group">
+                    <label for="input-role">User Role</label>
+                    <select id="input-role" name="role" class="form-select" style="width: 100%;">
+                        <option value="Admin">Admin</option>
+                        <option value="Editor">Editor</option>
+                        <option value="Viewer">Viewer</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modular Script -->
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

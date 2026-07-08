@@ -1,0 +1,6 @@
+cert.pem
+key.pem
+go-frontend.exe
+production
+config.bat
+node_modules
